@@ -23,14 +23,20 @@ func check(t *testing.T, ck *Clerk, p string, b string, n uint) {
 	}
 }
 
+// [수정됨] 윈도우 호환을 위해 IP:Port 형식 반환
 func port(suffix string) string {
-	s := "/var/tmp/824-"
-	s += strconv.Itoa(os.Getuid()) + "/"
-	os.Mkdir(s, 0777)
-	s += "viewserver-"
-	s += strconv.Itoa(os.Getpid()) + "-"
-	s += suffix
-	return s
+	// Suffix(문자열)를 기반으로 고유 숫자 생성
+	h := 0
+	for _, c := range suffix {
+		h = h*31 + int(c)
+	}
+	if h < 0 { h = -h }
+
+	// 포트 충돌 방지를 위해 PID와 suffix 해시 조합
+	// 기본 10000번대 + PID 기반 오프셋 + suffix 기반 오프셋
+	p := 10000 + (os.Getpid() % 1000) * 10 + (h % 100)
+	
+	return "127.0.0.1:" + strconv.Itoa(p)
 }
 
 func Test1(t *testing.T) {

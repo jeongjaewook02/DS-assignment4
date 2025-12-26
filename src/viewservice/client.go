@@ -38,7 +38,8 @@ func MakeClerk(me string, server string) *Clerk {
 //
 func call(srv string, rpcname string,
 	args interface{}, reply interface{}) bool {
-	c, errx := rpc.Dial("unix", srv)
+	// [수정됨] 윈도우 호환을 위해 "unix" -> "tcp" 변경
+	c, errx := rpc.Dial("tcp", srv)
 	if errx != nil {
 		return false
 	}
